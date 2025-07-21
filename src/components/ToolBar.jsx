@@ -1,17 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { 
-  FolderOpen, 
-  Save, 
-  Undo, 
-  Redo, 
-  Play, 
-  Pause, 
-  RotateCcw,
-  Copy,
-  Paste,
-  Search
-} from 'lucide-react'
+import { FolderOpen, Save, Undo, Redo, Play, Pause, RotateCcw, Copy, Cast as Paste, Search } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { FileHandler } from '../utils/fileHandler'
