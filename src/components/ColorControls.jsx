@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Palette, Pipette, Copy, Paste, RotateCcw } from 'lucide-react'
+import { Palette, Pipette, Copy, Cast as Paste, RotateCcw } from 'lucide-react'
 import { ColorHandler } from '../utils/colorHandler'
 
 const ColorControls = ({ selectedColors, onColorChange }) => {
