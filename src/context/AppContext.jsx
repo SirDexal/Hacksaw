@@ -16,10 +16,11 @@ const initialState = {
   // Settings
   settings: {
     ritobinPath: '',
-    colorMode: 'random',
+    colorMode: 'linear',
     ignoreBW: true,
     autoBackup: true,
-    previewQuality: 'medium'
+    previewQuality: 'medium',
+    targets: [true, true, true, true, true] // OC, RC, LC, BC, Main
   },
   
   // Color system
@@ -31,6 +32,9 @@ const initialState = {
     { id: 5, color: '#F59E0B', name: 'Warning Orange' },
     { id: 6, color: '#EF4444', name: 'Error Red' }
   ],
+
+  // Sample palettes for compatibility
+  samples: [],
   
   // History for undo/redo
   history: [],

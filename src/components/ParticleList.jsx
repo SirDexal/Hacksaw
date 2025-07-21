@@ -2,14 +2,26 @@ import React, { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, ChevronDown, ChevronRight, Zap, Eye, EyeOff } from 'lucide-react'
 import { useApp } from '../context/AppContext'
+import { FileHandler } from '../utils/fileHandler'
 
 const ParticleList = () => {
   const { state, setSelectedEmitters } = useApp()
   const [expandedParticles, setExpandedParticles] = useState(new Set())
   const [localSearch, setLocalSearch] = useState('')
+  const [particles, setParticles] = useState([])
 
-  // Mock particle data for demonstration
-  const mockParticles = [
+  // Load particles from current bin
+  React.useEffect(() => {
+    if (state.currentBin) {
+      const extractedParticles = FileHandler.extractParticlesFromFile(state.currentBin);
+      setParticles(extractedParticles);
+    } else {
+      // Use mock data when no bin is loaded
+      setParticles(getMockParticles());
+    }
+  }, [state.currentBin]);
+
+  const getMockParticles = () => [
     {
       id: 1,
       name: 'Fire_Burst_System',
@@ -36,17 +48,17 @@ const ParticleList = () => {
         { id: 33, name: 'Energy_Wisps', type: 'Complex', colors: { oc: '#C084FC', rc: '#A855F7', lc: '#F3E8FF', bc: '#FAF5FF', main: '#C084FC' } }
       ]
     }
-  ]
+  ];
 
   const filteredParticles = useMemo(() => {
     const query = (localSearch || state.searchQuery).toLowerCase()
-    if (!query) return mockParticles
+    if (!query) return particles
 
-    return mockParticles.filter(particle => 
+    return particles.filter(particle => 
       particle.name.toLowerCase().includes(query) ||
       particle.emitters.some(emitter => emitter.name.toLowerCase().includes(query))
     )
-  }, [localSearch, state.searchQuery])
+  }, [localSearch, state.searchQuery, particles])
 
   const toggleParticleExpansion = (particleId) => {
     const newExpanded = new Set(expandedParticles)

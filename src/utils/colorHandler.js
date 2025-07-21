@@ -102,11 +102,36 @@ export class ColorHandler {
     this.time = time;
     this.vec4 = this.toVec4();
   }
+
+  // Additional methods for compatibility
+  SetTime(time) {
+    return this.setTime(time);
+  }
+
+  ToHEX() {
+    return this.toHex();
+  }
+
+  ToVec4() {
+    return this.toVec4();
+  }
+
+  HSLShift(hue, sat, lig) {
+    return this.hslShift(hue, sat, lig);
+  }
+
+  InputHex(hex) {
+    return this.inputHex(hex);
+  }
+
+  InputVec4(vec4) {
+    return this.inputVec4(vec4);
+  }
 }
 
 export function toBG(palette) {
   if (palette.length === 1) {
-    return palette[0].toHex();
+    return `${palette[0].toHex()} ${palette[0].time * 100}%`;
   } else if (palette.length > 1) {
     let result = [];
     for (let i = 0; i < palette.length; i++) {
@@ -117,12 +142,53 @@ export function toBG(palette) {
   return '#000000';
 }
 
+// Alias for compatibility
+export function ToBG(palette) {
+  return toBG(palette);
+}
+
 export function getColor(property) {
-  // Simplified color extraction for web version
   if (property?.type === 'vec4') {
     return [new ColorHandler(property.value)];
   }
   
-  // For dynamic colors, return a default palette
-  return [new ColorHandler()];
+  let DynID = property?.findIndex?.((item) => item.key === 'dynamics' || item.key === 3154345447);
+  let ConstID = property?.findIndex?.((item) => item.key === 'constantValue' || item.key === 3031705514);
+  
+  if (DynID >= 0) {
+    let ProbTableID = property[DynID].value.items.findIndex((item) =>
+      item.key === 'probabilityTables'
+    );
+    if (ProbTableID >= 0) property[DynID].value.items.shift();
+  }
+  
+  let Palette = [];
+
+  if (DynID >= 0) {
+    let Dynamics = property[DynID].value.items;
+    let DynTimes = Dynamics[0]?.value.items || [];
+    let DynColors = Dynamics[1]?.value.items || [];
+    for (let i = 0; i < DynTimes.length; i++) {
+      Palette.push(new ColorHandler(DynColors[i], DynTimes[i]));
+    }
+  } else if (ConstID >= 0) {
+    let Constant = property[ConstID].value;
+    Palette.push(new ColorHandler(Constant));
+  }
+  
+  return Palette.length > 0 ? Palette : [new ColorHandler()];
+}
+
+// Alias for compatibility
+export function GetColor(property) {
+  return getColor(property);
+}
+
+// Utility functions for color checking
+export function isBW(A, B, C) {
+  return A === B && B === C ? A === 0 || A === 1 : false;
+}
+
+export function clamp(num, min = 0, max = 1) {
+  return Math.min(Math.max(num, min), max);
 }

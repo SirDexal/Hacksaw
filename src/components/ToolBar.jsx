@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { useHotkeys } from 'react-hotkeys-hook'
+import { FileHandler } from '../utils/fileHandler'
 
 const ToolBar = () => {
   const { state, undo, redo, setSearchQuery } = useApp()
@@ -25,13 +26,29 @@ const ToolBar = () => {
   useHotkeys('ctrl+s', () => handleSaveFile())
 
   const handleOpenFile = async () => {
-    // File opening logic will be implemented
-    console.log('Open file')
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.bin,.json';
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        try {
+          const fileData = await FileHandler.processParticleFile(file);
+          // This would normally dispatch to app context
+          console.log('File loaded:', fileData);
+        } catch (error) {
+          console.error('Error loading file:', error);
+        }
+      }
+    };
+    input.click();
   }
 
   const handleSaveFile = async () => {
-    // File saving logic will be implemented
-    console.log('Save file')
+    if (state.currentBin) {
+      const content = JSON.stringify(state.currentBin, null, 2);
+      FileHandler.downloadFile(content, 'modified_particles.json');
+    }
   }
 
   const toolGroups = [

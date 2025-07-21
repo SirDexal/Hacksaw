@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Palette, Pipette, Copy, Paste, RotateCcw } from 'lucide-react'
-import { ChromePicker } from 'react-color'
+import { ColorHandler } from '../utils/colorHandler'
 
 const ColorControls = ({ selectedColors, onColorChange }) => {
   const [activeColorPicker, setActiveColorPicker] = useState(null)
@@ -16,9 +16,10 @@ const ColorControls = ({ selectedColors, onColorChange }) => {
   ]
 
   const handleColorChange = (colorKey, color) => {
+    const colorValue = typeof color === 'string' ? color : color.hex;
     onColorChange({
       ...selectedColors,
-      [colorKey]: color.hex
+      [colorKey]: colorValue
     })
   }
 
@@ -89,6 +90,64 @@ const ColorControls = ({ selectedColors, onColorChange }) => {
     onColorChange(colors)
   }
 
+  // Simple color picker component
+  const SimpleColorPicker = ({ color, onChange }) => (
+    <div className="space-y-3">
+      <input
+        type="color"
+        value={color}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full h-12 rounded-lg border border-gray-600 cursor-pointer"
+      />
+      <div className="grid grid-cols-3 gap-2">
+        <div>
+          <label className="block text-xs text-gray-400 mb-1">R</label>
+          <input
+            type="number"
+            min="0"
+            max="255"
+            value={parseInt(color.slice(1, 3), 16)}
+            onChange={(e) => {
+              const r = Math.max(0, Math.min(255, parseInt(e.target.value) || 0));
+              const hex = color.slice(0, 1) + r.toString(16).padStart(2, '0') + color.slice(3);
+              onChange(hex);
+            }}
+            className="w-full px-2 py-1 bg-black/30 border border-gray-600 rounded text-white text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-gray-400 mb-1">G</label>
+          <input
+            type="number"
+            min="0"
+            max="255"
+            value={parseInt(color.slice(3, 5), 16)}
+            onChange={(e) => {
+              const g = Math.max(0, Math.min(255, parseInt(e.target.value) || 0));
+              const hex = color.slice(0, 3) + g.toString(16).padStart(2, '0') + color.slice(5);
+              onChange(hex);
+            }}
+            className="w-full px-2 py-1 bg-black/30 border border-gray-600 rounded text-white text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-gray-400 mb-1">B</label>
+          <input
+            type="number"
+            min="0"
+            max="255"
+            value={parseInt(color.slice(5, 7), 16)}
+            onChange={(e) => {
+              const b = Math.max(0, Math.min(255, parseInt(e.target.value) || 0));
+              const hex = color.slice(0, 5) + b.toString(16).padStart(2, '0');
+              onChange(hex);
+            }}
+            className="w-full px-2 py-1 bg-black/30 border border-gray-600 rounded text-white text-sm"
+          />
+        </div>
+      </div>
+    </div>
+  );
   // Helper functions for color conversion
   const hexToHsl = (hex) => {
     const r = parseInt(hex.slice(1, 3), 16) / 255
@@ -177,7 +236,7 @@ const ColorControls = ({ selectedColors, onColorChange }) => {
               <input
                 type="text"
                 value={selectedColors[field.key]}
-                onChange={(e) => handleColorChange(field.key, { hex: e.target.value })}
+                onChange={(e) => handleColorChange(field.key, e.target.value)}
                 className="w-20 px-2 py-1 bg-black/30 border border-gray-600 rounded text-white text-sm font-mono focus:border-purple-500 focus:outline-none"
               />
 
@@ -209,10 +268,9 @@ const ColorControls = ({ selectedColors, onColorChange }) => {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
-            <ChromePicker
+            <SimpleColorPicker
               color={selectedColors[activeColorPicker]}
               onChange={(color) => handleColorChange(activeColorPicker, color)}
-              disableAlpha
             />
           </motion.div>
         )}
